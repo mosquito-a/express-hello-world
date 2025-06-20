@@ -31,10 +31,18 @@
         background: #eee;
         cursor: pointer;
       }
+      .username-input {
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        width: 100%;
+        box-sizing: border-box;
+      }
     </style>
   </head>
   <body>
     <div class="chat">
+      <input type="text" class="username-input" placeholder="ユーザー名を入力してください" />
       <ul class="messages"></ul>
       <form class="form">
         <input class="input" autocomplete="off" />
@@ -46,17 +54,18 @@
       function main() {
         const host = location.origin.replace(/^http/, 'ws')
         const ws = new WebSocket(host + '/ws')
-        const myId = self.crypto.randomUUID().substr(0, 8)
 
         const form = document.querySelector('.form')
-   
+        const usernameInput = document.querySelector('.username-input')
+       
         form.onsubmit = function (e) {
-        e.preventDefault()
-        const input = document.querySelector('.input')
-        const text = input.value
-        ws.send(JSON.stringify({ id: myId, text }))
-        input.value = ''
-        input.focus()
+          e.preventDefault()
+          const input = document.querySelector('.input')
+          const text = input.value
+          const username = usernameInput.value || '名無し'
+          ws.send(JSON.stringify({ id: username, text }))
+          input.value = ''
+          input.focus()
         }
 
         ws.onmessage = function (msg) {
@@ -64,8 +73,8 @@
           const { id, text } = JSON.parse(msg.data)
           const messageList = document.querySelector('.messages')
           const li = document.createElement('li')
-          if (id === myId) {
-            li.textContent = `(${id})自分:` + text
+          if (id === usernameInput.value) { 
+            li.textContent = `(${id})自分: ` + text
           } else {
             li.textContent = id + ': ' + text
           }
@@ -80,4 +89,3 @@
       main()
     </script>
   </body>
-</html>
